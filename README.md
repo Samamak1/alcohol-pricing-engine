@@ -1,115 +1,187 @@
-# Alcohol Pricing Engine
+# Alcohol Pricing Decision System
 
-A cost-to-menu pricing system I built and ran as owner/operator of a tapas & tequila
-restaurant in Wichita, KS (2023). Every bottle that came through the door - several hundred SKUs of
-tequila, mezcal, wine, and beer - went through this workbook before it got a menu price.
+> A sanitized spreadsheet system converting distributor invoices into consistent cost-per-ounce, markup, and POS menu-price decisions for a high-volume tapas and tequila restaurant.
 
-No inventory software, no consultants. Distributor invoices went in one side; POS-ready
-pour prices came out the other.
+I built and operated the workbooks in 2023 while serving as **Director of Operations / Launch Consultant**. I was **not the owner or founder** of the restaurant. The system supported pricing decisions across several hundred tequila, mezcal, wine, beer, and spirits SKUs.
 
-## Files
+## Program brief
+
+| Field | Detail |
+|---|---|
+| Business challenge | Convert inconsistent distributor invoice lines into repeatable pricing decisions before menu and Toast POS entry. |
+| My role | Director of Operations / Launch Consultant; designer and operating user of the pricing workbooks. |
+| Users | Operations and bar leadership preparing menus and Toast POS records. |
+| Scale | Several hundred SKUs and approximately 7,100 formulas across the two published workbooks. |
+| Status | Historical operating system used during the 2023 restaurant launch and operation; public files are sanitized portfolio copies. |
+| Primary outcome | Pricing became a governed lookup and review process rather than a bottle-by-bottle calculation from scratch. |
+
+## Repository contents
 
 | File | What it is |
 |---|---|
-| `Alcohol_Pricing_CLEAN.xlsx` | The master pricing workbook (tabs: `pricing`, `wines`, `beers`), ~3,500 live formulas |
-| `Toast_Price_Matrix_Example.xlsx` | A single-invoice pricing run built for Toast POS entry - a full 2x-10x markup matrix per bottle, ~3,600 formulas |
+| `Alcohol_Pricing_CLEAN.xlsx` | Master pricing workbook with `pricing`, `wines`, and `beers` tabs and approximately 3,500 formulas. |
+| `Toast_Price_Matrix_Example.xlsx` | A representative invoice-to-POS pricing run with 2x-10x markup options and approximately 3,600 formulas. |
+| `README.md` | Business context, model logic, evidence status, controls, and limitations. |
 
-## How the model works
+## Operating workflow
 
-### Liquor (`pricing` tab)
-
-Each row is one bottle from a distributor invoice. The column chain:
-
+```text
+Distributor invoice
+  -> parse description and bottle cost
+  -> classify category and size
+  -> calculate cost per ml and cost per ounce
+  -> compare markup and pour-size options
+  -> select an operating price
+  -> enter approved price in Toast POS
+  -> review product mix and revise when costs change
 ```
-category | brand/description | ML | cost | cost per ml | ounces | cost per oz | 4x | cost 1.5oz | 4x | cost 2oz | 4x
+
+The model standardized the calculation and made exceptions visible. It did not remove managerial judgment: premium products, market position, clean menu price points, and operational goals still required approval.
+
+## Model detail
+
+The formulas below are historical examples shown as written in the operating workbook.
+
+### Liquor pricing
+
+Each row represented one invoice item:
+
+```text
+category | brand/description | ml | cost | cost/ml | ounces |
+cost/oz | 1.5 oz cost | 1.5 oz menu price | 2 oz cost | 2 oz menu price
 ```
 
-1. **Parse the cost out of the invoice line.** Invoice exports came in as text like
-   `"1800 Reposado Tequila (750mL/item) - $25.80"`, so the workbook pulls the dollar
-   figure straight out of the description string:
-
-   ```excel
-   =TRIM(MID(D4, FIND("$", D4), FIND(" ", D4, FIND("$", D4)) - FIND("$", D4)))
-   ```
-
-2. **Auto-categorize the bottle** by keyword search against the description - spirit family:
-
-   ```excel
-   =IF(OR(ISNUMBER(SEARCH("Tequila", C4)), ISNUMBER(SEARCH("Tequila", D4))), "Tequila",
-    IF(OR(ISNUMBER(SEARCH("Rum", C4)), ISNUMBER(SEARCH("Rum", D4))), "Rum",
-    IF(OR(ISNUMBER(SEARCH("Whiskey", C4)), ISNUMBER(SEARCH("Whiskey", D4))), "Whiskey",
-    IF(OR(ISNUMBER(SEARCH("Gin", C4)), ISNUMBER(SEARCH("Gin", D4))), "Gin",
-    IF(OR(ISNUMBER(SEARCH("Liqueur", C4)), ISNUMBER(SEARCH("Liqueur", D4))), "Liqueur", "")))))
-   ```
-
-   A second classifier does the same for tequila age statements (plata/blanco/silver,
-   gold, reposado, añejo, extra añejo).
-
-3. **Convert to per-ounce cost.** `ML / 29.57 = ounces`, then `cost / ounces = cost per oz`:
-
-   ```excel
-   H4: =SUM(E4/G4)     ' bottle ML / ml-per-oz = ounces in bottle
-   I4: =SUM(F4/H4)     ' bottle cost / ounces = cost per ounce
-   ```
-
-4. **Markup tiers at 4x.** Pour costs are computed at 1.5 oz (cocktail pour) and 2 oz
-   (neat/rocks pour), each marked up 4x - a 25% pour cost:
-
-   ```excel
-   K4: =SUM(I4*1.5)    ' cost of a 1.5 oz pour
-   L4: =SUM(K4*4)      ' menu price at 4x
-   M4: =SUM(I4*2)      ' cost of a 2 oz pour
-   N4: =SUM(M4*4)      ' menu price at 4x
-   ```
-
-### Wine (`wines` tab)
-
-Bottle cost is grossed up 13% for tax/overhead, glass price is derived from a 25-oz
-bottle at an 8-oz pour, and bottle menu price is 2.5x:
+#### Parse bottle cost from the invoice text
 
 ```excel
-D12: =(C12/25)*1.13   ' per-oz cost including the 13% load
-G12: =C12*1.13        ' loaded bottle cost
-H12: =G12*2.5         ' bottle menu price at 2.5x
+=TRIM(MID(D4, FIND("$", D4), FIND(" ", D4, FIND("$", D4)) - FIND("$", D4)))
 ```
 
-(High-end bottles like Dom Pérignon and Laurent-Perrier were dialed back to 2x by hand -
-markup discipline bends at the top of the list or the bottles never leave the cellar.)
+This formula assumes a space follows the dollar amount and therefore requires exception handling when distributor text changes.
 
-### Beer (`beers` tab)
-
-Per-unit cost out of the case, plus 7.5% purchase tax, times a per-SKU markup
-(4x-5x depending on the beer):
+#### Classify the spirit family
 
 ```excel
-E13: =SUM(D13/C13)*1.075   ' case price / units, taxed = single cost
-G13: =SUM(E13*F13)         ' single cost x markup = menu price
+=IF(OR(ISNUMBER(SEARCH("Tequila", C4)), ISNUMBER(SEARCH("Tequila", D4))), "Tequila",
+ IF(OR(ISNUMBER(SEARCH("Rum", C4)), ISNUMBER(SEARCH("Rum", D4))), "Rum",
+ IF(OR(ISNUMBER(SEARCH("Whiskey", C4)), ISNUMBER(SEARCH("Whiskey", D4))), "Whiskey",
+ IF(OR(ISNUMBER(SEARCH("Gin", C4)), ISNUMBER(SEARCH("Gin", D4))), "Gin",
+ IF(OR(ISNUMBER(SEARCH("Liqueur", C4)), ISNUMBER(SEARCH("Liqueur", D4))), "Liqueur", "")))))
 ```
 
-### The Toast price matrix
+A second classifier handled tequila age statements such as blanco, silver, gold, reposado, anejo, and extra anejo.
 
-`Toast_Price_Matrix_Example.xlsx` is one full invoice (120+ bottles) prepared for POS
-entry. For every bottle it computes:
+#### Convert bottle cost to pour cost
 
-- Landed cost with 15% purchase tax: `=(E3+(15%*E3))`
-- Exact ounces: `=(M3/29.5735)`
-- A price matrix at every half-step multiplier from 2x to 10x (`=($O3*P$2)` across 17 columns)
-- Toast price points per pour: 1 oz, 1.5 oz (cocktail), 2 oz (neat/rocks), 2 oz big ice (+$2), 2.5 oz (martini)
-- Bottle-service pricing: 30% off the by-the-ounce equivalent, floored to a clean $100 step:
-  `=(AH3*N3)*0.7` then `=FLOOR(AM3,100)`, with the implied discount tracked as `=(1-(AO3)/(AH3*N3))`
+```excel
+H4: =SUM(E4/G4)
+I4: =SUM(F4/H4)
+K4: =SUM(I4*1.5)
+L4: =SUM(K4*4)
+M4: =SUM(I4*2)
+N4: =SUM(M4*4)
+```
 
-The matrix meant a pricing decision was a lookup, not a calculation: pick the multiplier
-that fits the bottle's tier, read across, type into Toast.
+- `H4`: bottle ml divided by ml per ounce
+- `I4`: bottle cost divided by bottle ounces
+- `K4` and `M4`: cost of 1.5 oz and 2 oz pours
+- `L4` and `N4`: historical 4x menu-price outputs
 
-## Honest notes
+The unnecessary `SUM()` wrappers are retained because the workbook is an authentic historical operating artifact.
 
-- **The workflow was manual.** One workbook (or tab) per distributor invoice, built as
-  invoices arrived - this repo's master file carries the merged result. It worked, and it
-  also taught me exactly why restaurants pay for inventory software.
-- **Formulas are wrapped in `SUM()` unnecessarily** (`=SUM(E4/G4)` instead of `=E4/G4`).
-  Self-taught Excel from the middle of a restaurant opening looks like this.
-- **Employee data removed.** The original workbook had a block of employee time-clock
-  data (names, roles, wages, clock-in/out times) pasted into spare columns of the pricing
-  tab - the spreadsheet was the office. Those columns (originally R-X) have been deleted
-  entirely from this copy, along with per-invoice vendor tabs. Every remaining cell has
-  been scanned; the only proper names left are wine and spirit brands.
+### Wine pricing
+
+The wine tab grossed bottle cost up by a 13% historical load, calculated a glass cost from a 25 oz bottle, and applied a default bottle multiplier.
+
+```excel
+D12: =(C12/25)*1.13
+G12: =C12*1.13
+H12: =G12*2.5
+```
+
+- `D12`: per-ounce loaded cost
+- `G12`: loaded bottle cost
+- `H12`: default 2.5x bottle menu price
+
+Premium bottles were reviewed manually and could receive a lower multiplier when the default produced an unrealistic menu price.
+
+### Beer pricing
+
+```excel
+E13: =SUM(D13/C13)*1.075
+G13: =SUM(E13*F13)
+```
+
+- `E13`: case price divided by unit count, plus the historical purchase-tax load
+- `G13`: unit cost multiplied by the selected per-SKU markup
+
+Per-SKU multipliers generally ranged from 4x-5x.
+
+### Toast pricing matrix
+
+The representative Toast workbook calculates:
+
+- Landed cost with the historical 15% load: `=(E3+(15%*E3))`
+- Exact bottle ounces: `=(M3/29.5735)`
+- Multipliers from 2x-10x in 0.5 increments: `=($O3*P$2)` across 17 columns
+- 1 oz, 1.5 oz, 2 oz, big-ice, and 2.5 oz price points
+- Bottle service at 30% below the by-the-ounce equivalent: `=(AH3*N3)*0.7`
+- A clean bottle-service floor: `=FLOOR(AM3,100)`
+- Implied discount tracking: `=(1-(AO3)/(AH3*N3))`
+
+The matrix turned a calculation into a controlled selection: choose the tier, review exceptions, approve a clean price point, and enter it into Toast.
+
+## Controls and validation
+
+The historical workflow relied on manager review rather than automated tests:
+
+- Confirm bottle size and invoice cost before pricing
+- Review uncategorized or misclassified descriptions
+- Spot-check cost-per-ounce calculations
+- Review premium-SKU exceptions separately
+- Approve clean menu price points before POS entry
+- Compare later sales and product-mix reporting with the pricing decision
+
+These checks should be formalized if the model is reused.
+
+## Evidence and outcome status
+
+| Item | Evidence status |
+|---|---|
+| Workbook logic | Original historical formulas in sanitized operating workbooks. |
+| Scale | Formula count and rows observable in the published files. |
+| Several hundred SKUs | Historical operating scope represented in the workbook. |
+| Faster, more consistent decisions | Workflow outcome; no timed before-and-after study is claimed. |
+| Profit or margin impact | Not independently isolated or claimed by this repository. |
+
+## Role, contributors, and authorship
+
+Sama Mushtaq designed, maintained, and used the pricing workbooks as part of his operations and launch-consulting mandate. Distributor invoices supplied the source descriptions and costs; Toast was the target POS environment. This repository does not claim authorship of vendor data, product brands, or third-party software.
+
+## AI assistance
+
+The public record does not establish AI use in the original 2023 workbook design. This replacement therefore makes no unsupported claim. Any AI used later to document, inspect, or sanitize the public files should be disclosed before publication and should not be represented as the source of operating inputs or pricing approval.
+
+## Confidentiality and provenance
+
+- Employee names, roles, wages, and time-clock records formerly stored in spare workbook columns were removed.
+- Per-invoice vendor tabs and vendor-account details were removed.
+- Remaining proper names are product and brand names.
+- Before publication, exact supplier prices should be reviewed to confirm they are safe to disclose; representative values should replace any commercially sensitive terms.
+- The public files are historical portfolio artifacts, not current vendor price lists.
+
+## Limitations
+
+- Manual input and review; not an inventory-management platform.
+- Historical 2023 tax and overhead assumptions are context-specific and may no longer apply.
+- Keyword classification can fail when distributor descriptions change.
+- No automated test suite, audit log, user permissions, or database.
+- One restaurant context; not validated as a general pricing product.
+- Formulas use some unnecessary `SUM()` wrappers and manual premium-tier overrides.
+- The system supports decisions; it does not guarantee profitability or regulatory compliance.
+
+## Related
+
+- [Restaurant launch program](https://github.com/Samamak1/restaurant-buildout)
+- [iTZCALi launch case](https://samamak1.github.io/work/itzcali/)
+- [Sama Mushtaq program leadership portfolio](https://samamak1.github.io/)
