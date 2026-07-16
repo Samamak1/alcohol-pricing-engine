@@ -1,6 +1,6 @@
 # Alcohol Pricing Decision System
 
-> A sanitized spreadsheet system converting distributor invoices into consistent cost-per-ounce, markup, and POS menu-price decisions for a high-volume tapas and tequila restaurant.
+> A governed pricing system converting distributor invoices into consistent cost-per-ounce, markup, and POS menu-price decisions for a high-volume tapas and tequila restaurant.
 
 I built and operated the workbooks in 2023 while serving as **Director of Operations / Launch Consultant**. I was **not the owner or founder** of the restaurant. The system supported pricing decisions across several hundred tequila, mezcal, wine, beer, and spirits SKUs.
 
@@ -11,17 +11,17 @@ I built and operated the workbooks in 2023 while serving as **Director of Operat
 | Business challenge | Convert inconsistent distributor invoice lines into repeatable pricing decisions before menu and Toast POS entry. |
 | My role | Director of Operations / Launch Consultant; designer and operating user of the pricing workbooks. |
 | Users | Operations and bar leadership preparing menus and Toast POS records. |
-| Scale | Several hundred SKUs and approximately 7,100 formulas across the two published workbooks. |
-| Status | Historical operating system used during the 2023 restaurant launch and operation; public files are sanitized portfolio copies. |
+| Scale | Several hundred SKUs in the historical operating system; the public case documents the decision logic without product-level supplier terms. |
+| Status | Historical operating system used during the 2023 restaurant launch and operation; source workbooks are intentionally withheld from the public repository. |
 | Primary outcome | Pricing became a governed lookup and review process rather than a bottle-by-bottle calculation from scratch. |
 
 ## Repository contents
 
 | File | What it is |
 |---|---|
-| `Alcohol_Pricing_CLEAN.xlsx` | Master pricing workbook with `pricing`, `wines`, and `beers` tabs and approximately 3,500 formulas. |
-| `Toast_Price_Matrix_Example.xlsx` | A representative invoice-to-POS pricing run with 2x-10x markup options and approximately 3,600 formulas. |
-| `README.md` | Business context, model logic, evidence status, controls, and limitations. |
+| `README.md` | Recruiter-facing business context, model logic, evidence status, controls, and limitations. |
+
+The working spreadsheets are not published because their row-level inputs include historical supplier purchase prices. The formulas below preserve the operating method while the commercial inputs remain private.
 
 ## Operating workflow
 
@@ -40,7 +40,7 @@ The model standardized the calculation and made exceptions visible. It did not r
 
 ## Model detail
 
-The formulas below are historical examples shown as written in the operating workbook.
+The formulas below are historical examples shown as written in the operating workbook. Cell references are retained to make the method auditable; the source values are not published.
 
 ### Liquor pricing
 
@@ -148,9 +148,8 @@ These checks should be formalized if the model is reused.
 
 | Item | Evidence status |
 |---|---|
-| Workbook logic | Original historical formulas in sanitized operating workbooks. |
-| Scale | Formula count and rows observable in the published files. |
-| Several hundred SKUs | Historical operating scope represented in the workbook. |
+| Workbook logic | Historical formula patterns documented in this case study; source workbooks withheld. |
+| Several hundred SKUs | Leadership-account scope; row-level supplier inputs are not published. |
 | Faster, more consistent decisions | Workflow outcome; no timed before-and-after study is claimed. |
 | Profit or margin impact | Not independently isolated or claimed by this repository. |
 
@@ -160,20 +159,20 @@ Sama Mushtaq designed, maintained, and used the pricing workbooks as part of his
 
 ## AI assistance
 
-The public record does not establish AI use in the original 2023 workbook design. This replacement therefore makes no unsupported claim. Any AI used later to document, inspect, or sanitize the public files should be disclosed before publication and should not be represented as the source of operating inputs or pricing approval.
+The public record does not establish AI use in the original 2023 workbook design, so this case makes no unsupported claim about it. AI assisted with the later documentation and confidentiality review of this public presentation; it did not originate the operating inputs, formula logic, or pricing approvals.
 
 ## Confidentiality and provenance
 
-- Employee names, roles, wages, and time-clock records formerly stored in spare workbook columns were removed.
-- Per-invoice vendor tabs and vendor-account details were removed.
-- Remaining proper names are product and brand names.
-- Before publication, exact supplier prices should be reviewed to confirm they are safe to disclose; representative values should replace any commercially sensitive terms.
-- The public files are historical portfolio artifacts, not current vendor price lists.
+- Row-level supplier prices, invoice descriptions, vendor-account details, and product-specific purchasing terms are not published.
+- Employee names, roles, wages, time-clock records, and operational source tabs remain private.
+- The repository publishes the decision framework and representative formula patterns, not a current or historical vendor price list.
+- Product-level examples should be added only after representative values and formula behavior can be verified independently of the source workbooks.
 
 ## Limitations
 
 - Manual input and review; not an inventory-management platform.
 - Historical 2023 tax and overhead assumptions are context-specific and may no longer apply.
+- Because the working spreadsheets are withheld, reviewers can assess the method but cannot reproduce a full pricing run from this repository alone.
 - Keyword classification can fail when distributor descriptions change.
 - No automated test suite, audit log, user permissions, or database.
 - One restaurant context; not validated as a general pricing product.
