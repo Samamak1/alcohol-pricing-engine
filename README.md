@@ -1,8 +1,8 @@
 # Alcohol Pricing Engine
 
 A cost-to-menu pricing system I built and ran as owner/operator of a tapas & tequila
-restaurant in Wichita, KS (2023). Every bottle that came through the door — several hundred SKUs of
-tequila, mezcal, wine, and beer — went through this workbook before it got a menu price.
+restaurant in Wichita, KS (2023). Every bottle that came through the door - several hundred SKUs of
+tequila, mezcal, wine, and beer - went through this workbook before it got a menu price.
 
 No inventory software, no consultants. Distributor invoices went in one side; POS-ready
 pour prices came out the other.
@@ -12,7 +12,7 @@ pour prices came out the other.
 | File | What it is |
 |---|---|
 | `Alcohol_Pricing_CLEAN.xlsx` | The master pricing workbook (tabs: `pricing`, `wines`, `beers`), ~3,500 live formulas |
-| `Toast_Price_Matrix_Example.xlsx` | A single-invoice pricing run built for Toast POS entry — a full 2x–10x markup matrix per bottle, ~3,600 formulas |
+| `Toast_Price_Matrix_Example.xlsx` | A single-invoice pricing run built for Toast POS entry - a full 2x-10x markup matrix per bottle, ~3,600 formulas |
 
 ## How the model works
 
@@ -32,7 +32,7 @@ category | brand/description | ML | cost | cost per ml | ounces | cost per oz | 
    =TRIM(MID(D4, FIND("$", D4), FIND(" ", D4, FIND("$", D4)) - FIND("$", D4)))
    ```
 
-2. **Auto-categorize the bottle** by keyword search against the description — spirit family:
+2. **Auto-categorize the bottle** by keyword search against the description - spirit family:
 
    ```excel
    =IF(OR(ISNUMBER(SEARCH("Tequila", C4)), ISNUMBER(SEARCH("Tequila", D4))), "Tequila",
@@ -53,7 +53,7 @@ category | brand/description | ML | cost | cost per ml | ounces | cost per oz | 
    ```
 
 4. **Markup tiers at 4x.** Pour costs are computed at 1.5 oz (cocktail pour) and 2 oz
-   (neat/rocks pour), each marked up 4x — a 25% pour cost:
+   (neat/rocks pour), each marked up 4x - a 25% pour cost:
 
    ```excel
    K4: =SUM(I4*1.5)    ' cost of a 1.5 oz pour
@@ -73,13 +73,13 @@ G12: =C12*1.13        ' loaded bottle cost
 H12: =G12*2.5         ' bottle menu price at 2.5x
 ```
 
-(High-end bottles like Dom Pérignon and Laurent-Perrier were dialed back to 2x by hand —
+(High-end bottles like Dom Pérignon and Laurent-Perrier were dialed back to 2x by hand -
 markup discipline bends at the top of the list or the bottles never leave the cellar.)
 
 ### Beer (`beers` tab)
 
 Per-unit cost out of the case, plus 7.5% purchase tax, times a per-SKU markup
-(4x–5x depending on the beer):
+(4x-5x depending on the beer):
 
 ```excel
 E13: =SUM(D13/C13)*1.075   ' case price / units, taxed = single cost
@@ -104,12 +104,12 @@ that fits the bottle's tier, read across, type into Toast.
 ## Honest notes
 
 - **The workflow was manual.** One workbook (or tab) per distributor invoice, built as
-  invoices arrived — this repo's master file carries the merged result. It worked, and it
+  invoices arrived - this repo's master file carries the merged result. It worked, and it
   also taught me exactly why restaurants pay for inventory software.
 - **Formulas are wrapped in `SUM()` unnecessarily** (`=SUM(E4/G4)` instead of `=E4/G4`).
   Self-taught Excel from the middle of a restaurant opening looks like this.
 - **Employee data removed.** The original workbook had a block of employee time-clock
   data (names, roles, wages, clock-in/out times) pasted into spare columns of the pricing
-  tab — the spreadsheet was the office. Those columns (originally R–X) have been deleted
+  tab - the spreadsheet was the office. Those columns (originally R-X) have been deleted
   entirely from this copy, along with per-invoice vendor tabs. Every remaining cell has
   been scanned; the only proper names left are wine and spirit brands.
