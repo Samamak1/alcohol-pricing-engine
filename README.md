@@ -6,7 +6,7 @@ In 2023, I built and operated the pricing workbooks used to prepare several hund
 
 Distributor invoices arrived with inconsistent product descriptions, bottle sizes, and prices. The bar team needed to turn those records into defensible pour and bottle prices without recalculating each SKU from scratch.
 
-The hard part was not the multiplication. The system had to catch description changes, distinguish bottle sizes, compare pour options, handle premium-product exceptions, create clean menu prices, and leave a review path before anything entered Toast.
+The system had to catch description changes, distinguish bottle sizes, compare pour options, handle premium-product exceptions, create clean menu prices, and leave a review path before anything entered Toast.
 
 ## What I built
 
